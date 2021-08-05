@@ -36,13 +36,15 @@ export default function App() {
   const [users, setUsers] = useState([]);
   const [flag, setFlag] = useState(Array.from({ length: 10 }, (v, i) => false));
   const [locations, setLocations] = useState([]);
+  const [cloneLocations, setCloneLocations] = useState([]);
   const [headers, setHeaders] = useState([]);
+  const [searchVal, setSearchVal] = useState("");
 
   const sortByColumn = (idx) => {
     // Ascending Order
     // setLocations((data) => [...data.sort((a, b) => a[idx] - b[idx])]);
     if (!flag[idx]) {
-      setLocations((data) => {
+      setCloneLocations((data) => {
         if (typeof data[0][idx] === "number" || !isNaN(Number(data[0][idx]))) {
           return [...data.sort((a, b) => a[idx] - b[idx])];
         } else {
@@ -61,7 +63,8 @@ export default function App() {
         }
       });
     } else {
-      setLocations((data) => {
+      // Descending Order
+      setCloneLocations((data) => {
         if (typeof data[0][idx] === "number" || !isNaN(Number(data[0][idx]))) {
           return [...data.sort((a, b) => b[idx] - a[idx])];
         } else {
@@ -84,17 +87,45 @@ export default function App() {
     console.log(idx);
   };
 
+  const getFilteredRows = (string) => {
+    const result = locations.filter((person) => {
+      let res;
+      for (let word of person) {
+        console.log(word);
+        if (
+          word.toString().toLowerCase().includes(string.toLowerCase()) ||
+          string === ""
+        ) {
+          res = person;
+        }
+      }
+      return res;
+    });
+    return result;
+  };
+
   useEffect(() => {
     fetchData().then((data) => {
       const location = data.results[0].location;
       setUsers(data.results.name);
       setLocations(data.results.map((user, idx) => getDataRows(user.location)));
+      setCloneLocations(
+        data.results.map((user, idx) => getDataRows(user.location))
+      );
       setHeaders(getHeaderData(location));
     });
   }, []);
   return (
     <div className="App">
       <h1>Super Users and Their Location with FETCH</h1>
+      <label htmlFor="search">Search</label>
+      <input
+        className="App-search"
+        id="search"
+        name="search"
+        value={searchVal}
+        onChange={(e) => setSearchVal(e.target.value)}
+      />
       <table className="App-table">
         <thead>
           <tr>
@@ -118,7 +149,7 @@ export default function App() {
           </tr>
         </thead>
         <tbody>
-          {locations.map((loc, idx) => (
+          {getFilteredRows(searchVal).map((loc, idx) => (
             <tr className="App-row" key={idx}>
               {loc.map((data, idx) => (
                 <td className="App-row-data" key={idx}>

@@ -5,6 +5,7 @@
 
 .App-table {
   margin: 0 auto;
+  margin-top: 10px;
 }
 
 .App-table-head {
@@ -21,4 +22,8 @@
 
 .App-row:nth-child(even) {
   background-color: rgb(177, 174, 174);
+}
+
+.App-search {
+  margin: 0 10px;
 }
